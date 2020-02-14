@@ -79,6 +79,7 @@ insert elem sortedList =
 
 -- SELECTION SORT
 
+
 type alias SelectList a =
     { selected : a
     , others : List a
@@ -87,36 +88,39 @@ type alias SelectList a =
 
 selectionSort : SortingAlgo comparable
 selectionSort list =
+    selectionSortHelp list []
+
+
+selectionSortHelp : List comparable -> List comparable -> List comparable
+selectionSortHelp list acc =
     case list of
         [] ->
-            list
+            acc
 
         first :: rest ->
             let
-                acc =
-                    selectMinimum { selected = first, others = rest }
+                { selected, others } =
+                    selectMaximum { selected = first, others = rest } []
             in
-            acc.selected :: selectionSort acc.others
+            selectionSortHelp others (selected :: acc)
 
 
-selectMinimum : SelectList comparable -> SelectList comparable
-selectMinimum selectList =
+selectMaximum : SelectList comparable -> List comparable -> SelectList comparable
+selectMaximum selectList acc =
     case selectList.others of
         [] ->
-            selectList
+            { selectList | others = acc }
 
         first :: rest ->
-            let
-                acc =
-                    selectMinimum { selectList | others = rest }
-            in
-            if first < acc.selected then
-                { selected = first, others = acc.selected :: acc.others }
+            if first > selectList.selected then
+                selectMaximum
+                    { selected = first, others = rest }
+                    (selectList.selected :: acc)
 
             else
-                { acc | others = first :: acc.others }
-
-
+                selectMaximum
+                    { selectList | others = rest }
+                    (first :: acc)
 
 
 
